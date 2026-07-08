@@ -1,24 +1,11 @@
-import { UsuarioService } from './services/usuarioService';
-import { question, rl } from './utils/readLine';
+import { AppMenu } from './menu/menu';
 
-async function main() {
-  // Instanciamos el servicio directamente en memoria, ¡sin pasarle ninguna conexión!
-  const usuarioService = new UsuarioService();
+async function bootstrap() {
+  // Instanciamos el menú orquestador
+  const app = new AppMenu();
   
-  console.log('\n--- PRUEBA EN MEMORIA ---');
-  const correo = await question('Correo electrónico: ');
-  const contrasenia = await question('Contraseña: ');
-  const rol = await question('Rol: ');
-
-  // Guardamos en el Array
-  const nuevoId = await usuarioService.crearUsuario({ correo, contrasenia, rol });
-  console.log(`\n[Simulado] Guardado en memoria con ID temporal: ${nuevoId}`);
-
-  // Listamos para verificar
-  const lista = await usuarioService.obtenerUsuarios();
-  console.table(lista);
-
-  rl.close();
+  // Encendemos la interfaz interactiva
+  await app.iniciar();
 }
 
-main();
+bootstrap();
