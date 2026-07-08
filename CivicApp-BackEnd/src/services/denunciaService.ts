@@ -10,7 +10,7 @@ export class DenunciaService {
 
     const nuevaDenuncia: Denuncia = {
       id_denuncia: this.ultimoId,
-      fecha_creacion: new Date(), // Simulamos el CURRENT_TIMESTAMP de la BD
+      fecha_creacion: new Date(), 
       ...denuncia
     };
 
