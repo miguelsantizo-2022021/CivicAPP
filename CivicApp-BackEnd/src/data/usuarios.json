@@ -4,5 +4,59 @@
     "correo": "pirata123sz@gmail.com",
     "contrasenia": "admin123",
     "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 2,
+    "correo": "carlos.mendoza@gmail.com",
+    "contrasenia": "carlos2026",
+    "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 3,
+    "correo": "ana.lucia.perez@hotmail.com",
+    "contrasenia": "ana12345",
+    "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 4,
+    "correo": "muni.guatemala@gob.gt",
+    "contrasenia": "muniPass2026",
+    "rol": "institucion"
+  },
+  {
+    "id_usuario": 5,
+    "correo": "luis.hernandez@yahoo.es",
+    "contrasenia": "luish8899",
+    "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 6,
+    "correo": "sofia.morales@gmail.com",
+    "contrasenia": "sofiSecure",
+    "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 7,
+    "correo": "pnc.transitoguat@pnc.gob.gt",
+    "contrasenia": "pncSeguridad123",
+    "rol": "institucion"
+  },
+  {
+    "id_usuario": 8,
+    "correo": "mario.gomez@outlook.com",
+    "contrasenia": "marioG2026",
+    "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 9,
+    "correo": "claudia.rodriguez@gmail.com",
+    "contrasenia": "claudia321",
+    "rol": "ciudadano"
+  },
+  {
+    "id_usuario": 10,
+    "correo": "diego.alvarado@gmail.com",
+    "contrasenia": "diegoPass",
+    "rol": "ciudadano"
   }
 ]
