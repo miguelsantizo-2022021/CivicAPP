@@ -1,14 +1,14 @@
 import { Usuario } from '../models/usuario';
+import { esperar } from '../utils/esperar';
 
 export class UsuarioService {
-  // Creamos un arreglo en memoria que simula la tabla de la BD
   private usuarios: Usuario[] = [];
   private ultimoId = 0;
 
-  // Registrar un nuevo usuario simulando el auto_increment
   async crearUsuario(usuario: Omit<Usuario, 'id_usuario'>): Promise<number> {
-    this.ultimoId++;
+    await esperar(600);
     
+    this.ultimoId++;
     const nuevoUsuario: Usuario = {
       id_usuario: this.ultimoId,
       ...usuario
@@ -18,9 +18,8 @@ export class UsuarioService {
     return nuevoUsuario.id_usuario!;
   }
 
-  // Listar todos los usuarios en memoria
   async obtenerUsuarios(): Promise<Usuario[]> {
-    // Retornamos una copia para proteger los datos originales
+    await esperar(400);
     return [...this.usuarios];
   }
 }
