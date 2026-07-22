@@ -1,0 +1,14 @@
+[
+  {
+    "id_denuncia": 1,
+    "fecha_creacion": "2026-07-22T15:20:57.259Z",
+    "id_ciudadano": 1,
+    "id_categoria": 4,
+    "id_estado": 1,
+    "titulo": "Individuos hebrios",
+    "descripcion": "multiples estan bajo los sintomas de alcoholismo, provocando gritos a alatas horas de la noche",
+    "ciudad": "Guatemala, aldea la laguneta",
+    "zona": 18,
+    "direccion_exacta": "aldea la laguneta"
+  }
+]

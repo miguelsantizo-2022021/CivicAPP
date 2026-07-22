@@ -1,0 +1,8 @@
+[
+  {
+    "id_usuario": 1,
+    "correo": "pirata123sz@gmail.com",
+    "contrasenia": "admin123",
+    "rol": "ciudadano"
+  }
+]
