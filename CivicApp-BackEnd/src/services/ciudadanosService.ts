@@ -9,7 +9,6 @@ export interface Ciudadano {
 }
 
 export class CiudadanoService {
-  // 1. Método para registrar ciudadano desde AuthController
   async registrarCiudadano(ciudadano: Omit<Ciudadano, 'id_ciudadano'>): Promise<number> {
     if (!ciudadano.nombre || ciudadano.nombre.trim().length === 0) {
       throw new Error('El nombre del ciudadano es obligatorio.');
@@ -22,7 +21,6 @@ export class CiudadanoService {
     return result.insertId;
   }
 
-  // 2. Método para buscar ciudadano por ID de usuario desde AuthController
   async obtenerCiudadanoPorUsuario(idUsuario: number): Promise<Ciudadano | null> {
     const [rows] = await db.query<RowDataPacket[]>(
       'SELECT * FROM ciudadano WHERE id_usuario = ?',

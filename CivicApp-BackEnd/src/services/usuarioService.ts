@@ -3,7 +3,6 @@ import { Usuario } from '../models/usuario';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import { ValidacionUtil } from '../utils/validaciones';
 
-// Interfaz local para Institución si no la importas de otro modelo
 export interface Institucion {
   id_institucion?: number;
   id_usuario: number;
@@ -53,7 +52,6 @@ export class UsuarioService {
       throw new Error('Debe seleccionar obligatoriamente un rol válido: ciudadano, institucion o admin.');
     }
 
-    // Verificar si el correo ya existe
     const [existentes] = await db.query<RowDataPacket[]>(
       'SELECT id_usuario FROM usuario WHERE correo = ?',
       [usuario.correo.trim()]
@@ -73,8 +71,6 @@ export class UsuarioService {
   async crearUsuario(usuario: Omit<Usuario, 'id_usuario'>): Promise<number> {
     return this.registrarUsuario(usuario);
   }
-
-  // ---------------- MÉTODOS DE INSTITUCIÓN RECUPERADOS ----------------
 
   async registrarInstitucion(institucion: Omit<Institucion, 'id_institucion'>): Promise<number> {
     if (!institucion.nombre_institucion || institucion.nombre_institucion.trim().length === 0) {
@@ -96,8 +92,6 @@ export class UsuarioService {
     if (rows.length === 0) return null;
     return rows[0] as Institucion;
   }
-
-  // -------------------------------------------------------------------
 
   async obtenerTodos(): Promise<Usuario[]> {
     const [rows] = await db.query<RowDataPacket[]>('SELECT id_usuario, correo, rol FROM usuario');

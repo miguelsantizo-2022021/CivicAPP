@@ -8,7 +8,6 @@ export interface Institucion {
 }
 
 export class InstitucionService {
-  // Obtener todas las instituciones con el correo del usuario asociado
   async obtenerTodas(): Promise<any[]> {
     const [rows] = await db.query<RowDataPacket[]>(
       `SELECT i.id_institucion, i.id_usuario, i.nombre_institucion, u.correo 
@@ -18,7 +17,6 @@ export class InstitucionService {
     return rows;
   }
 
-  // Obtener institución por ID
   async obtenerPorId(idInstitucion: number): Promise<any | null> {
     const [rows] = await db.query<RowDataPacket[]>(
       `SELECT i.id_institucion, i.id_usuario, i.nombre_institucion, u.correo 
@@ -31,7 +29,6 @@ export class InstitucionService {
     return rows[0];
   }
 
-  // Actualizar solo el nombre de la institución
   async actualizarInstitucion(idInstitucion: number, nombreInstitucion: string): Promise<boolean> {
     const [result] = await db.query<ResultSetHeader>(
       'UPDATE institucion SET nombre_institucion = ? WHERE id_institucion = ?',
@@ -40,7 +37,6 @@ export class InstitucionService {
     return result.affectedRows > 0;
   }
 
-  // Eliminar la institución eliminando su usuario base (Aprovechando ON DELETE CASCADE)
   async eliminarInstitucion(idInstitucion: number): Promise<boolean> {
     const [rows] = await db.query<RowDataPacket[]>(
       'SELECT id_usuario FROM institucion WHERE id_institucion = ?',

@@ -18,7 +18,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Helper para registrar rutas de forma segura y detectar cuál falla
 const registrarRuta = (path: string, router: any) => {
   if (typeof router !== 'function') {
     console.error(`❌ ERROR: El módulo de rutas para '${path}' no es una función válida (posible export default faltante).`);

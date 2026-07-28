@@ -42,7 +42,6 @@ export class AuthController {
         return;
       }
 
-      // registrarUsuario ejecutará las validaciones de correo @gmail/@yahoo/@outlook y pass > 6
       const idUsuario = await usuarioService.registrarUsuario({
         correo,
         contrasenia,

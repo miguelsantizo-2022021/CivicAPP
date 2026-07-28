@@ -48,7 +48,6 @@ export class InstitucionController {
         return;
       }
 
-      // CORRECCIÓN AQUÍ: Pasar nombre_institucion directamente como string
       const actualizado = await institucionService.actualizarInstitucion(id, nombre_institucion);
       if (!actualizado) {
         res.status(404).json({ error: 'Institución no encontrada para actualizar' });

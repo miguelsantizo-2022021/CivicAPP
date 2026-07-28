@@ -30,7 +30,6 @@ export class UsuarioController {
     }
   }
 
-  // MÉTODO CREAR QUE FALTABA
   static async crear(req: Request, res: Response): Promise<void> {
     try {
       const { correo, contrasenia, rol } = req.body;

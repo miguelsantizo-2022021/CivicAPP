@@ -13,7 +13,6 @@ export class SeguimientoService {
       ORDER BY s.fecha_cambio ASC`, [idDenuncia]);
     return rows;
   }
-  // La creación se suele hacer desde DenunciaService al actualizar estado, pero la dejamos por completitud
   async crearSeguimiento(seguimiento: Seguimiento): Promise<number> {
     const [result] = await db.query<ResultSetHeader>(
       'INSERT INTO seguimiento (id_denuncia, id_estado_anterior, id_estado_nuevo) VALUES (?, ?, ?)',
