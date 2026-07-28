@@ -1,58 +1,148 @@
+import { db } from '../config/database';
 import { Usuario } from '../models/usuario';
-import { esperar } from '../utils/esperar';
-import * as fs from 'fs';
-import * as path from 'path';
+import { ResultSetHeader, RowDataPacket } from 'mysql2';
+import { ValidacionUtil } from '../utils/validaciones';
+
+// Interfaz local para Institución si no la importas de otro modelo
+export interface Institucion {
+  id_institucion?: number;
+  id_usuario: number;
+  nombre_institucion: string;
+}
 
 export class UsuarioService {
-  private filePath = path.join(__dirname, '../data/usuarios.json');
-  private usuarios: Usuario[] = [];
-  private ultimoId = 0;
+  private pinAdminMaestro = '2026ADMIN';
 
-  constructor() {
-    this.cargarDatos();
+  async verificarPinAdmin(pinIngresado: string): Promise<boolean> {
+    return pinIngresado === this.pinAdminMaestro;
   }
 
-  private cargarDatos() {
-    try {
-      const dir = path.dirname(this.filePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-
-      if (fs.existsSync(this.filePath)) {
-        const contenido = fs.readFileSync(this.filePath, 'utf-8');
-        this.usuarios = JSON.parse(contenido);
-        if (this.usuarios.length > 0) {
-          this.ultimoId = Math.max(...this.usuarios.map(u => u.id_usuario || 0));
-        }
-      } else {
-        fs.writeFileSync(this.filePath, JSON.stringify([], null, 2));
-      }
-    } catch (error) {
-      this.usuarios = [];
+  async cambiarContraseniaAdmin(idUsuarioAdmin: number, nuevoPin: string): Promise<boolean> {
+    if (!ValidacionUtil.esContraseniaValida(nuevoPin)) {
+      throw new Error('La nueva contraseña debe tener más de 6 dígitos.');
     }
+
+    this.pinAdminMaestro = nuevoPin;
+    const [result] = await db.query<ResultSetHeader>(
+      'UPDATE usuario SET contrasenia = ? WHERE id_usuario = ? AND rol = "admin"',
+      [nuevoPin, idUsuarioAdmin]
+    );
+    return result.affectedRows > 0;
   }
 
-  private guardarEnDisco() {
-    fs.writeFileSync(this.filePath, JSON.stringify(this.usuarios, null, 2));
+  async login(correo: string, pass: string): Promise<Usuario | null> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      'SELECT * FROM usuario WHERE correo = ? AND contrasenia = ?',
+      [correo.trim(), pass.trim()]
+    );
+
+    if (rows.length === 0) return null;
+    return rows[0] as Usuario;
+  }
+
+  async registrarUsuario(usuario: Omit<Usuario, 'id_usuario'>): Promise<number> {
+    if (!ValidacionUtil.esCorreoValido(usuario.correo)) {
+      throw new Error('El correo no es válido. Solo se aceptan dominios @gmail.com, @yahoo.com o @outlook.com.');
+    }
+
+    if (!ValidacionUtil.esContraseniaValida(usuario.contrasenia)) {
+      throw new Error('La contraseña debe tener estrictamente más de 6 dígitos.');
+    }
+
+    if (!ValidacionUtil.esRolValido(usuario.rol)) {
+      throw new Error('Debe seleccionar obligatoriamente un rol válido: ciudadano, institucion o admin.');
+    }
+
+    // Verificar si el correo ya existe
+    const [existentes] = await db.query<RowDataPacket[]>(
+      'SELECT id_usuario FROM usuario WHERE correo = ?',
+      [usuario.correo.trim()]
+    );
+
+    if (existentes.length > 0) {
+      throw new Error('El correo ingresado ya se encuentra registrado.');
+    }
+
+    const [result] = await db.query<ResultSetHeader>(
+      'INSERT INTO usuario (correo, contrasenia, rol) VALUES (?, ?, ?)',
+      [usuario.correo.trim().toLowerCase(), usuario.contrasenia.trim(), usuario.rol.trim().toLowerCase()]
+    );
+    return result.insertId;
   }
 
   async crearUsuario(usuario: Omit<Usuario, 'id_usuario'>): Promise<number> {
-    await esperar(600);
-    this.ultimoId++;
-
-    const nuevoUsuario: Usuario = {
-      id_usuario: this.ultimoId,
-      ...usuario
-    };
-
-    this.usuarios.push(nuevoUsuario);
-    this.guardarEnDisco();
-    return nuevoUsuario.id_usuario!;
+    return this.registrarUsuario(usuario);
   }
 
-  async obtenerUsuarios(): Promise<Usuario[]> {
-    await esperar(400);
-    return [...this.usuarios];
+  // ---------------- MÉTODOS DE INSTITUCIÓN RECUPERADOS ----------------
+
+  async registrarInstitucion(institucion: Omit<Institucion, 'id_institucion'>): Promise<number> {
+    if (!institucion.nombre_institucion || institucion.nombre_institucion.trim().length === 0) {
+      throw new Error('El nombre de la institución es obligatorio.');
+    }
+
+    const [result] = await db.query<ResultSetHeader>(
+      'INSERT INTO institucion (id_usuario, nombre_institucion) VALUES (?, ?)',
+      [institucion.id_usuario, institucion.nombre_institucion.trim()]
+    );
+    return result.insertId;
+  }
+
+  async obtenerInstitucionPorUsuario(idUsuario: number): Promise<Institucion | null> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      'SELECT * FROM institucion WHERE id_usuario = ?',
+      [idUsuario]
+    );
+    if (rows.length === 0) return null;
+    return rows[0] as Institucion;
+  }
+
+  // -------------------------------------------------------------------
+
+  async obtenerTodos(): Promise<Usuario[]> {
+    const [rows] = await db.query<RowDataPacket[]>('SELECT id_usuario, correo, rol FROM usuario');
+    return rows as Usuario[];
+  }
+
+  async obtenerPorId(idUsuario: number): Promise<Usuario | null> {
+    const [rows] = await db.query<RowDataPacket[]>(
+      'SELECT id_usuario, correo, rol FROM usuario WHERE id_usuario = ?',
+      [idUsuario]
+    );
+    if (rows.length === 0) return null;
+    return rows[0] as Usuario;
+  }
+
+  async actualizarUsuario(idUsuario: number, datos: Partial<Usuario>): Promise<boolean> {
+    if (datos.correo && !ValidacionUtil.esCorreoValido(datos.correo)) {
+      throw new Error('El correo no es válido. Solo se aceptan dominios @gmail.com, @yahoo.com o @outlook.com.');
+    }
+
+    if (datos.contrasenia && !ValidacionUtil.esContraseniaValida(datos.contrasenia)) {
+      throw new Error('La contraseña debe tener estrictamente más de 6 dígitos.');
+    }
+
+    if (datos.rol && !ValidacionUtil.esRolValido(datos.rol)) {
+      throw new Error('El rol proporcionado no es válido.');
+    }
+
+    const [result] = await db.query<ResultSetHeader>(
+      'UPDATE usuario SET correo = COALESCE(?, correo), contrasenia = COALESCE(?, contrasenia), rol = COALESCE(?, rol) WHERE id_usuario = ?',
+      [
+        datos.correo ? datos.correo.trim().toLowerCase() : null,
+        datos.contrasenia ? datos.contrasenia.trim() : null,
+        datos.rol ? datos.rol.trim().toLowerCase() : null,
+        idUsuario
+      ]
+    );
+    return result.affectedRows > 0;
+  }
+
+  async eliminarUsuario(idUsuario: number): Promise<boolean> {
+    const [result] = await db.query<ResultSetHeader>(
+      'DELETE FROM usuario WHERE id_usuario = ?',
+      [idUsuario]
+    );
+    return result.affectedRows > 0;
   }
 }
